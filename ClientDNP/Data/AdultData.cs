@@ -11,16 +11,12 @@ namespace ClientDNP.Data
     public class AdultData : IAdultData
     {
         private const string _url = "https://localhost:5002/Adults";
-        private readonly HttpClient client;
-
-
+        private readonly HttpClient client; 
         public AdultData()
         {
             client = new HttpClient();
             Adults = new List<Adult>();
         }
-
-
         public IList<Adult> Adults { get; private set; }
 
 
@@ -39,7 +35,14 @@ namespace ClientDNP.Data
 
             return Adults;
         }
+        
 
+        public async Task RemoveAdult(Adult adult)
+        {
+            Adults.Remove(adult);
+            var response = await client.DeleteAsync(_url + $"/{adult.Id}");
+            response.EnsureSuccessStatusCode();
+        }
         public async Task Add(Adult adult)
         {
             var max = Adults.Max(adult => adult.Id);
@@ -49,13 +52,6 @@ namespace ClientDNP.Data
 
             StringContent queryString = new(JsonConvert.SerializeObject(adult), Encoding.UTF8, "application/json");
             var response = await client.PostAsync(_url, queryString);
-            response.EnsureSuccessStatusCode();
-        }
-
-        public async Task RemoveAdult(Adult adult)
-        {
-            Adults.Remove(adult);
-            var response = await client.DeleteAsync(_url + $"/{adult.Id}");
             response.EnsureSuccessStatusCode();
         }
 
