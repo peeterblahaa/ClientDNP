@@ -13,14 +13,14 @@ namespace FileData
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly IJSRuntime jsRuntime;
-        private readonly IUserData userService;
+        private readonly IUserData userData;
+
         private User cachedUser;
 
-
-        public CustomAuthenticationStateProvider(IJSRuntime jsRuntime, IUserData userService)
+        public CustomAuthenticationStateProvider(IJSRuntime jsRuntime, IUserData userData)
         {
             this.jsRuntime = jsRuntime;
-            this.userService = userService;
+            this.userData = userData;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -44,18 +44,20 @@ namespace FileData
             return await Task.FromResult(new AuthenticationState(cachedClaimsPrincipal));
         }
 
-        public void ValidateLogin(string username, string password)
+        public async Task ValidateLogin(string username, string password)
         {
             Console.WriteLine("Validating log in");
             if (string.IsNullOrEmpty(username)) throw new Exception("Enter username");
             if (string.IsNullOrEmpty(password)) throw new Exception("Enter password");
+
             ClaimsIdentity identity = new ClaimsIdentity();
             try
             {
-                User user = userService.Get(username, password);
+                User user = await userData.Get(username, password);
+                Console.WriteLine(user);
                 identity = SetupClaimsForUser(user);
                 string serialisedData = JsonSerializer.Serialize(user);
-                jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "currentUser", serialisedData);
+                await jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "currentUser", serialisedData);
                 cachedUser = user;
             }
             catch (Exception e)
@@ -63,7 +65,8 @@ namespace FileData
                 throw e;
             }
 
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal(identity))));
+            NotifyAuthenticationStateChanged(
+                Task.FromResult(new AuthenticationState(new ClaimsPrincipal(identity))));
         }
 
         public void Logout()
@@ -81,13 +84,10 @@ namespace FileData
             claims.Add(new Claim("Sex", user.Sex));
             claims.Add(new Claim("City", user.City));
             claims.Add(new Claim("IsRegistered", user.IsRegistered.ToString()));
-            
-            ClaimsIdentity identity = new ClaimsIdentity(claims, "apiauth_type");
+
+            ClaimsIdentity identity = new(claims, "apiauth_type");
             return identity;
-        }
-        public async Task Add(User user)
-        {
-            await userService.Add(user);
         }
     }
 }
+

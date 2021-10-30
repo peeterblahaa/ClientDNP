@@ -6,7 +6,7 @@ namespace ClientDNP.Login
 {
     public interface IUserData
     {
-        User Get(string username, string password);
+        Task<User> Get(string username, string password);
         Task Add(User user);
         Task<IList<User>> GetUsers();
     }

@@ -22,7 +22,9 @@ namespace ClientDNP.Login
             Users = new List<User>();
         }
 
-        public async Task<IList<User>> GetUsers() {
+        public async Task<IList<User>> GetUsers()
+        {
+            // load once and store in variable
             if (!Users.Any())
             {
                 HttpResponseMessage response = await client.GetAsync(_url);
@@ -30,19 +32,20 @@ namespace ClientDNP.Login
                 string responseBody = await response.Content.ReadAsStringAsync();
                 
                 Users = JsonConvert.DeserializeObject<List<User>>(responseBody);
-               
+                /*// have to do this because of the inheritance
+                JsonSerializerSettings settings = new() { TypeNameHandling = TypeNameHandling.All };
+                Adults = JsonConvert.DeserializeObject<List<Adult>>(responseBody, settings);*/
             }
 
             return Users;
         }
 
-        public User Get(string username, string password)
+        public async Task<User> Get(string username, string password)
         {
+            if (Users.Count == 0) await GetUsers();
             User first = Users.FirstOrDefault(x => x.Username.Equals(username));
             if (first == null) throw new Exception("User not found");
             if (!first.Password.Equals(password)) throw new Exception("Invalid password");
-            
-            
             return first;
         }
 
