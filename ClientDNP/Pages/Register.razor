@@ -1,0 +1,68 @@
+@page "/register"
+@using ClientDNP.Login
+@using ClientDNP.Models
+@using FileData
+@using Microsoft.AspNetCore.Components
+
+@inject IUserData UserData
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<h3>Register</h3>
+<EditForm class="adult-form" Model="@newUser" OnValidSubmit="@HandleRegister">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div class="form-group">
+        <p>Username</p>
+        <InputText class="form-control" @bind-Value="newUser.Username" placeholder="Enter username"/>
+    </div>
+    <div class="form-group">
+        <p>City</p>
+        <InputText class="form-control" @bind-Value="newUser.City" placeholder="Enter city"/>
+    </div>
+    <div class="form-group">
+        <p>Sex</p>
+        <InputText class="form-control" @bind-Value="newUser.Sex" placeholder="M or F"/>
+    </div>
+
+    <div class="form-group">
+        <p>Password</p>
+        <InputText class="form-control" @bind-Value="newUser.Password" type="password" placeholder="Enter password"/>
+    </div>
+    @{
+        // prevent error message from moving inputs
+        if (errorMessage == null || errorMessage.Equals(""))
+        {
+            <div class="error-message">&nbsp;</div>
+        }
+        else
+        {
+            <div class="error-message">@errorMessage</div>
+        }
+    }
+    <button type="submit" class="btn btn-success">Register</button>
+</EditForm>
+
+@code {
+    private string errorMessage;
+    private User newUser = new User();
+
+    private async Task HandleRegister()
+    {
+        await Task.Run(async () =>
+        {
+            errorMessage = "";
+            try
+            {
+                await UserData.Add(newUser);
+                ((CustomAuthenticationStateProvider) AuthenticationStateProvider).ValidateLogin(newUser.Username, newUser.Password);
+                NavigationManager.NavigateTo("/");
+            }
+            catch (Exception e)
+            {
+                errorMessage = e.Message;
+            }
+        });
+    }
+
+}

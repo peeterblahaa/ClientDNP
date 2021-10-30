@@ -1,0 +1,206 @@
+@page "/list"
+@using ClientDNP.Data
+@using ClientDNP.Models
+@inject IAdultData AdultsData;
+@inject NavigationManager NavMgr
+
+<h3>Adults List</h3>
+<p>Filter by:</p>
+<div class="filter-container">
+    <select class="custom-select filter-property" @onchange="@((arg) => ChangeFilter(arg))">
+        <option selected disabled>Select property</option>
+        @foreach (var value in adultProperties)
+        {
+            <option>@value</option>
+        }
+    </select>
+
+    @{
+        switch (selectedFilter)
+        {
+            case "Id":
+            case "Age":
+                <input type="number" class="form-control filter-text-input" placeholder="Enter @selectedFilter.ToLower()" @onchange="@((arg) => Filter(arg))">
+                break;
+            case "First Name":
+            case "Last Name":
+                <input type="text" class="form-control filter-text-input" placeholder="Enter @selectedFilter.ToLower()" @onchange="@((arg) => Filter(arg))">
+                break;
+
+
+        }
+    }
+</div>
+
+
+@if (adultsToShow == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else if (!adultsToShow.Any())
+{
+    <p>
+        <em>No Adults exist. Please add some.</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Hair Color</th>
+            <th>Eye Color</th>
+            <th>Age</th>
+            <th>Weight</th>
+            <th>Height</th>
+            <th>Sex</th>
+            <th>Job Title</th>
+            <th>Salary</th>
+            <th>Remove</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in adultsToShow)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.FirstName</td>
+                <td>@item.LastName</td>
+                <td>@item.HairColor</td>
+                <td>@item.EyeColor</td>
+                <td>@item.Age</td>
+                <td>@item.Weight</td>
+                <td>@item.Height</td>
+                <td>@item.Sex</td>
+                <td>@item.JobTitle.JobTitle</td>
+                <td>@item.JobTitle.Salary</td>
+
+                <td>
+                    <button @onclick="@(() => RemoveAdult(item.Id))">
+                        <i class="oi oi-trash" style="color:red"/>
+                    </button>
+                </td>
+
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+
+@code {
+
+
+    private IList<Adult> adultsToShow;
+    private IList<Adult> allAdults;
+    private string[] adultProperties = new string[] { "Id", "First Name", "Last Name","Age"};
+    
+    private string selectedFilter;
+
+    private int? filterByAge;
+
+
+    private void FilterByAge(ChangeEventArgs changeEventArgs)
+    {
+        filterByAge = null;
+        try
+        {
+            filterByAge = int.Parse(changeEventArgs.Value.ToString());
+        }
+        catch (Exception e)
+        {
+        }
+        ExecuteFilter();
+    }
+
+
+    private void ExecuteFilter()
+    {
+        adultsToShow = allAdults.Where(t => filterByAge != null && t.Age == filterByAge || filterByAge == null).ToList();
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        allAdults = await AdultsData.GetAdults();
+        adultsToShow = allAdults;
+        StateHasChanged();
+    }
+
+    private void RemoveAdult(int adultId)
+    {
+        var toRemove = allAdults.First(a => a.Id == adultId);
+        allAdults.Remove(toRemove);
+        adultsToShow.Remove(toRemove);
+        AdultsData.RemoveAdult(toRemove);
+    }
+
+
+    private void Edit(int id)
+    {
+        NavMgr.NavigateTo($"Edit/{id}");
+    }
+    
+    
+    
+    private void ChangeFilter(ChangeEventArgs arg)
+    {
+        selectedFilter = arg.Value.ToString();
+        adultsToShow = allAdults;
+    }
+
+    private void Filter(ChangeEventArgs arg)
+    {
+        switch (selectedFilter)
+        {
+            case "Id":
+                int? filterById = null;
+                try
+                {
+                    filterById = int.Parse(arg.Value.ToString());
+                }
+                catch (Exception e) { Console.WriteLine(e); }
+                if (filterById != null)
+                {
+                    adultsToShow = allAdults.Where(adult => adult.Id == filterById).ToList();
+                }
+                else adultsToShow = allAdults;
+                break;
+            case "Age":
+                int? filterByAge = null;
+                try
+                {
+                    filterByAge = int.Parse(arg.Value.ToString());
+                }
+                catch (Exception e) { Console.WriteLine(e); }
+                if (filterByAge != null)
+                {
+                    adultsToShow = allAdults.Where(adult => adult.Age == filterByAge).ToList();
+                }
+                else adultsToShow = allAdults;
+                break;
+            
+            case "First Name":
+                if (arg.Value.ToString() != null)
+                {
+                    adultsToShow = allAdults.Where(adult => adult.FirstName.Contains(arg.Value.ToString())).ToList();
+                }
+                else adultsToShow = allAdults;
+                break;
+            case "Last Name":
+                if (arg.Value.ToString() != null)
+                {
+                    adultsToShow = allAdults.Where(adult => adult.LastName.Contains(arg.Value.ToString())).ToList();
+                }
+                else adultsToShow = allAdults;
+                break;
+        }
+    }
+
+
+}

@@ -1,0 +1,70 @@
+@page "/Add"
+@using ClientDNP.Data
+@using ClientDNP.Models
+@using Microsoft.AspNetCore.Components
+
+
+@inject IAdultData AdultData
+@inject NavigationManager NavigationManager
+<h3> Add Adult </h3>
+<EditForm Model="@newAdultItem" OnValidSubmit="@AddNewAdult">
+    <DataAnnotationsValidator/> <ValidationSummary/>
+
+    <div class="form-group"> User Id:<br/> <InputNumber @bind-Value="newAdultItem.Id"/> </div>
+    <div class="row" style="margin-left: 3px;">
+        <div class="form-group"> First Name:<br/> <InputText placeholder="Enter first name" class="form-control" @bind-Value="newAdultItem.FirstName"/> </div>
+        <div class="row" style="margin-left: 50px;"></div>
+        <div class="form-group"> Last Name:<br/> <InputText placeholder="Enter last name" class="form-control" @bind-Value="newAdultItem.LastName"/> </div>
+    </div>
+    <div class="row" style="margin-left: 3px;">
+        <div class="form-group"> Hair Color:<br/> <InputText placeholder="Enter hair color" class="form-control" @bind-Value="newAdultItem.HairColor"/> </div>
+        <div class="row" style="margin-left: 50px;"></div>
+        <div class="form-group"> Eye Color:<br/> <InputText placeholder="Enter eye color" class="form-control" @bind-Value="newAdultItem.EyeColor"/> </div>
+    </div>
+    <div class="row" style="margin-left: 3px;">
+        <div class="form-group"> Age:<br/> <InputNumber @bind-Value="newAdultItem.Age"/> </div>
+        <div class="row" style="margin-left: 50px;"></div>
+        <div class="form-group"> Weight:<br/> <InputNumber @bind-Value="newAdultItem.Weight"/> </div>
+        <div class="row" style="margin-left: 50px;"></div>
+        <div class="form-group"> Height:<br/> <InputNumber @bind-Value="newAdultItem.Height"/> </div>
+    </div>
+    <div class="row" style="margin-left: 3px;">
+        <div class="form-group"> Sex:<br/> <InputText placeholder="Enter sex" class="form-control" @bind-Value="newAdultItem.Sex"/> </div>
+        <div class="row" style="margin-left: 50px;"></div>
+        <div class="form-group"> Job Title:<br/> <InputText placeholder="Enter job title" class="form-control" @bind-Value="newAdultItem.JobTitle.JobTitle"/> </div>
+    </div>
+    <div class="form-group"> Salary:<br/> <InputNumber @bind-Value="newAdultItem.JobTitle.Salary"/> </div>
+
+
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit">Create</button>
+    </p>
+</EditForm>
+
+@code {
+
+
+    private void AddNewAdult()
+    {
+        AdultData.Add(newAdultItem);
+        NavigationManager.NavigateTo("/list");
+    }
+
+    private readonly Adult newAdultItem = new()
+    {
+        Id = 0,
+        Age = 0,
+        Height = 0,
+        Sex = null,
+        Weight = 0,
+        EyeColor = null,
+        FirstName = null,
+        HairColor = null,
+        LastName = null, JobTitle = new Job
+        {
+            JobTitle = null,
+            Salary = 0
+        }
+    };
+
+}
