@@ -105,7 +105,7 @@ using FileData;
         }
         #pragma warning restore 1998
 #nullable restore
-#line 44 "/Users/peterblasko/RiderProjects/ClientDNP/ClientDNP/Pages/Login.razor"
+#line 34 "/Users/peterblasko/RiderProjects/ClientDNP/ClientDNP/Pages/Login.razor"
        
     private string username;
     private string password;

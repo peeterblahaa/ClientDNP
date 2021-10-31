@@ -111,31 +111,16 @@ using ClientDNP.Models;
 
     private IList<Adult> adultsToShow;
     private IList<Adult> allAdults;
-    private string[] adultProperties = new string[] { "Id", "First Name", "Last Name","Age"};
+    private string[] adultProperties =  { "Id", "First Name", "Last Name","Age"};
     
     private string selectedFilter;
-
-    private int? filterByAge;
-
-
-    private void FilterByAge(ChangeEventArgs changeEventArgs)
-    {
-        filterByAge = null;
-        try
-        {
-            filterByAge = int.Parse(changeEventArgs.Value.ToString());
-        }
-        catch (Exception e)
-        {
-        }
-        ExecuteFilter();
-    }
+    
 
 
-    private void ExecuteFilter()
-    {
-        adultsToShow = allAdults.Where(t => filterByAge != null && t.Age == filterByAge || filterByAge == null).ToList();
-    }
+    
+
+
+    
 
 
     protected override async Task OnInitializedAsync()
@@ -152,12 +137,7 @@ using ClientDNP.Models;
         adultsToShow.Remove(toRemove);
         AdultsData.RemoveAdult(toRemove);
     }
-
-
-    private void Edit(int id)
-    {
-        NavMgr.NavigateTo($"Edit/{id}");
-    }
+    
     
     
     

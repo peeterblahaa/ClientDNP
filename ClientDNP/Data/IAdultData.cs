@@ -10,6 +10,5 @@ namespace ClientDNP.Data
         Task<IList<Adult>> GetAdults();
 
         Task RemoveAdult(Adult adult);
-        Adult Get(int id);
     }
 }

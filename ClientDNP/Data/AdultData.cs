@@ -54,11 +54,6 @@ namespace ClientDNP.Data
             var response = await client.PostAsync(_url, queryString);
             response.EnsureSuccessStatusCode();
         }
-
-
-        public Adult Get(int id)
-        {
-            return Adults.FirstOrDefault(a => a.Id == id);
-        }
+        
     }
 }
